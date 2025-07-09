@@ -1,0 +1,27 @@
+{
+  "name": "fetchfox",
+  "version": "1.0.0",
+  "description": "AI scraper",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fetchfox/fetchfox.git"
+  },
+  "keywords": [
+    "ai",
+    "scraping"
+  ],
+  "author": "marcell@fetchfoxai.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fetchfox/fetchfox/issues"
+  },
+  "homepage": "https://github.com/fetchfox/fetchfox#readme",
+  "devDependencies": {
+    "jest": "^30.0.4"
+  }
+}
