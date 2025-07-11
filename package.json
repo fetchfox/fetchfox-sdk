@@ -1,11 +1,13 @@
 {
-  "name": "fetchfox",
+  "name": "fetchfox-sdk",
   "version": "1.0.0",
   "description": "AI scraper",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "format": "prettier --write .",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,10 @@
   },
   "homepage": "https://github.com/fetchfox/fetchfox#readme",
   "devDependencies": {
-    "jest": "^30.0.4"
+    "@eslint/js": "^9.31.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "husky": "^9.1.7",
+    "jest": "^30.0.4",
+    "prettier": "^3.6.2"
   }
 }

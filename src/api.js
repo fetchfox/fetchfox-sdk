@@ -1,32 +1,36 @@
-const host = 'https://api.fetchfox.ai';
+import { apiKey, host } from './configure.js';
 
-const endpoint = (path) => `${host}${path}`;
+const endpoint = (path) => `${host()}${path}`;
 
-const toSnakeCase = (dict) => {
+const clean = (dict) => {
   const result = {};
 
   for (const key in dict) {
     if (dict.hasOwnProperty(key)) {
       const snakeKey = key
         .replace(/([A-Z])/g, '_$1') // insert _ before uppercase letters
-        .toLowerCase()              // convert all to lowercase
-        .replace(/^_/, '');         // remove leading _ if any
+        .toLowerCase() // convert all to lowercase
+        .replace(/^_/, ''); // remove leading _ if any
 
       result[snakeKey] = dict[key];
     }
   }
 
-  return result;
-}
+  if (result.apiKey) {
+    delete result.apiKey;
+  }
 
-export const call = async (method, path, params, apiKey) => {
-  apiKey ||= process.env.FETCHFOX_API_KEY;
-  params = toSnakeCase(params);
+  return result;
+};
+
+export const call = async (method, path, params) => {
+  const key = apiKey(params);
+  params = clean(params);
 
   const args = {
     method,
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${key}`,
       'Content-Type': 'application/json',
     },
   };
@@ -40,4 +44,4 @@ export const call = async (method, path, params, apiKey) => {
 
   const resp = await fetch(url, args);
   return resp.json();
-}
+};
