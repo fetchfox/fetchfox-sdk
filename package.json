@@ -1,6 +1,6 @@
 {
   "name": "fetchfox-sdk",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "AI scraper",
   "main": "src/index.js",
   "type": "module",
@@ -28,6 +28,10 @@
     "eslint-plugin-promise": "^7.2.1",
     "husky": "^9.1.7",
     "jest": "^30.0.4",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,md}": "prettier --write"
   }
 }

@@ -1,31 +1,24 @@
 import { apiKey, host } from './configure.js';
 
+const camelCase = (obj) => {
+  const snakeToCamel = (str) =>
+    str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [snakeToCamel(key), value])
+  );
+};
+
 const endpoint = (path) => `${host()}${path}`;
 
-const clean = (dict) => {
-  const result = {};
-
-  for (const key in dict) {
-    if (dict.hasOwnProperty(key)) {
-      const snakeKey = key
-        .replace(/([A-Z])/g, '_$1') // insert _ before uppercase letters
-        .toLowerCase() // convert all to lowercase
-        .replace(/^_/, ''); // remove leading _ if any
-
-      result[snakeKey] = dict[key];
-    }
+const FetchFoxAPIError = class extends Error {
+  constructor(errors) {
+    super(JSON.stringify(errors));
+    this.errors = errors;
   }
-
-  if (result.apiKey) {
-    delete result.apiKey;
-  }
-
-  return result;
 };
 
 export const call = async (method, path, params) => {
   const key = apiKey(params);
-  params = clean(params);
 
   const args = {
     method,
@@ -43,5 +36,24 @@ export const call = async (method, path, params) => {
   }
 
   const resp = await fetch(url, args);
-  return resp.json();
+  const text = await resp.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    throw new Error(`FetchFox returned invalid JSON: ${text}`);
+  }
+
+  if (data.errors) {
+    throw new FetchFoxAPIError(data.errors);
+  }
+
+  if (resp.status >= 400) {
+    throw new FetchFoxAPIError({
+      status: `Received status=${resp.status}`,
+      ...data,
+    });
+  }
+
+  return camelCase(data);
 };

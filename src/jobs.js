@@ -4,7 +4,9 @@ export const jobs = {
   get: async (id) => {
     return call('GET', `/api/jobs/${id}`);
   },
-  list: async (limit = 100, offset = 0) => {
+  list: async (args) => {
+    const limit = args?.limit ?? 100;
+    const offset = args?.offset ?? 0;
     return call('GET', '/api/jobs', { limit, offset });
   },
 };
