@@ -1,11 +1,16 @@
+import { io } from 'socket.io-client';
+import { ws } from './configure.js';
 import { jobs } from './jobs.js';
 
 class FetchFoxError extends Error {}
 
 const interval = 1_000;
 
+export function getSocket() {}
+
 export const Job = class {
   #callbacks;
+  #socket;
 
   constructor(id) {
     this.id = id;
@@ -16,7 +21,15 @@ export const Job = class {
       progress: [],
     };
 
-    this.poll();
+    this.#socket = new io(ws());
+    this.#socket.on('progress', (data) => {
+      this.handleProgress(data);
+      console.log('==> socket got progress', data);
+    });
+    console.log('socket emit sub', this.id);
+    this.#socket.emit('sub', this.id);
+
+    // this.poll();
   }
 
   get _finished() {
@@ -24,15 +37,20 @@ export const Job = class {
   }
 
   #select(data) {
-    return {
-      name: data.name,
-      state: data.state,
-      args: data.args,
-      metrics: data.metrics,
-      progress: data.progress,
-      results: data.results,
-      artifacts: data.artifacts,
-    };
+    const s = {};
+    for (const key of [
+      'name',
+      'state',
+      'args',
+      'metrics',
+      'progress',
+      'results',
+      'artifacts',
+      'timer',
+    ]) {
+      s[key] = data[key] || this[key];
+    }
+    return s;
   }
 
   async get() {
@@ -44,12 +62,17 @@ export const Job = class {
     return this;
   }
 
-  async poll() {
+  handleProgress(data) {
     const last = JSON.stringify(this);
-    await this.get();
+
+    const s = this.#select(data);
+    for (const key of Object.keys(s)) {
+      this[key] = s[key];
+    }
+
     const didUpdate = JSON.stringify(this) != last;
     if (didUpdate) {
-      console.log('Job progressed:', this);
+      console.log('=> Job progressed:', this);
       this.trigger('progress');
 
       if (this.state == 'completed') {
@@ -64,10 +87,6 @@ export const Job = class {
       if (['completed', 'error'].includes(this.state)) {
         this.trigger('finished');
       }
-    }
-
-    if (!this._finished) {
-      setTimeout(() => this.poll(), interval);
     }
   }
 

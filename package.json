@@ -1,6 +1,6 @@
 {
   "name": "fetchfox-sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "AI scraper",
   "main": "src/index.js",
   "type": "module",
@@ -33,5 +33,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,md}": "prettier --write"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.1"
   }
 }

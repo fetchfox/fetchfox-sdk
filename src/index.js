@@ -6,4 +6,4 @@ export * from './user.js';
 export * from './proxy.js';
 export { Job } from './detach.js';
 export { call } from './api.js';
-export { configure } from './configure.js';
+export { configure, host, apiKey } from './configure.js';

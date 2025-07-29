@@ -2,11 +2,12 @@ const config = {
   host: 'https://api.fetchfox.ai',
 };
 
-const isNode = typeof process !== 'undefined' && 
-               process.versions != null && 
-               process.versions.node != null;
+const isNode =
+  typeof process !== 'undefined' &&
+  process.versions != null &&
+  process.versions.node != null;
 
-const safeEnv = (key) => isNode ? process.env[key] : null;
+const safeEnv = (key) => (isNode ? process.env[key] : null);
 
 export const configure = ({ apiKey, host }) => {
   if (apiKey) {
@@ -22,3 +23,9 @@ export const apiKey = (options) =>
 
 export const host = (options) =>
   options?.host || config.host || safeEnv('FETCHFOX_HOST');
+
+export const ws = (options) =>
+  (options?.host || config.host || safeEnv('FETCHFOX_HOST')).replace(
+    'http',
+    'ws'
+  );
