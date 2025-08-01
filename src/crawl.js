@@ -7,6 +7,5 @@ export const crawl = async function () {
 
 crawl.detach = async (args) => {
   const data = await call('POST', '/api/crawl', { ...args, detach: true });
-  console.log('detach data', data);
   return new Job(data.jobId);
 };
