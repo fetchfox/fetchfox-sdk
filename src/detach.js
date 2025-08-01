@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { ws } from './configure.js';
+import { ws, appHost } from './configure.js';
 import { jobs } from './jobs.js';
 
 class FetchFoxError extends Error {}
@@ -24,16 +24,16 @@ export const Job = class {
     this.#socket = new io(ws());
     this.#socket.on('progress', (data) => {
       this.handleProgress(data);
-      console.log('==> socket got progress', data);
     });
-    console.log('socket emit sub', this.id);
     this.#socket.emit('sub', this.id);
-
-    // this.poll();
   }
 
   get _finished() {
     return this._completed || this._error;
+  }
+
+  get appUrl() {
+    return appHost() + '/jobs/' + this.id;
   }
 
   #select(data) {
@@ -72,7 +72,6 @@ export const Job = class {
 
     const didUpdate = JSON.stringify(this) != last;
     if (didUpdate) {
-      console.log('=> Job progressed:', this);
       this.trigger('progress');
 
       if (this.state == 'completed') {
@@ -97,8 +96,6 @@ export const Job = class {
   }
 
   trigger(event) {
-    console.log('Trigger:', this.id, event);
-
     this.checkEvent(event);
     for (const cb of this.#callbacks[event]) {
       cb({ ...this });

@@ -24,6 +24,12 @@ export const apiKey = (options) =>
 export const host = (options) =>
   options?.host || config.host || safeEnv('FETCHFOX_HOST');
 
+export const appHost = (options) =>
+  (options?.host || config.host || safeEnv('FETCHFOX_HOST')).replace(
+    'api.fetchfox.ai',
+    'app.fetchfox.ai'
+  );
+
 export const ws = (options) =>
   (options?.host || config.host || safeEnv('FETCHFOX_HOST')).replace(
     'http',

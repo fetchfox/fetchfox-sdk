@@ -4,6 +4,7 @@ export * from './extract.js';
 export * from './jobs.js';
 export * from './user.js';
 export * from './proxy.js';
+export * from './urls.js';
 export { Job } from './detach.js';
 export { call } from './api.js';
 export { configure, host, apiKey } from './configure.js';
