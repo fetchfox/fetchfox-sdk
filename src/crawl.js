@@ -1,7 +1,7 @@
 import { call } from './api.js';
 import { Job } from './detach.js';
 
-export const crawl = async function () {
+export const crawl = async (args) => {
   return call('POST', '/api/crawl', args);
 };
 
