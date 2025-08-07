@@ -1,9 +1,9 @@
 import { call } from './api.js';
 import { Job } from './detach.js';
 
-export const crawl = async (args) => {
+export async function crawl(args) {
   return call('POST', '/api/crawl', args);
-};
+}
 
 crawl.detach = async (args) => {
   const data = await call('POST', '/api/crawl', { ...args, detach: true });
