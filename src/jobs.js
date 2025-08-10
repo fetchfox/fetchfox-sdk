@@ -5,8 +5,18 @@ export const jobs = {
     return call('GET', `/api/jobs/${id}`);
   },
   list: async (args) => {
-    const limit = args?.limit ?? 100;
-    const offset = args?.offset ?? 0;
-    return call('GET', '/api/jobs', { limit, offset });
+    const params = {};
+    params.limit = args?.limit ?? 100;
+    params.offset = args?.offset ?? 0;
+
+    if (args?.types) {
+      if (Array.isArray(args.types)) {
+        params.types = args.types.join(',');
+      } else {
+        params.types = args.types;
+      }
+    }
+    const types = args?.types ?? 0;
+    return call('GET', '/api/jobs', params);
   },
 };
