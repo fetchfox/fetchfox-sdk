@@ -8,4 +8,4 @@ export * from './proxy.js';
 export * from './urls.js';
 export { Job } from './detach.js';
 export { call } from './api.js';
-export { configure, host, apiKey } from './configure.js';
+export { configure, host, ws, apiKey } from './configure.js';
