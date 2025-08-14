@@ -8,4 +8,5 @@ export * from './proxy.js';
 export * from './urls.js';
 export { Job } from './detach.js';
 export { call } from './api.js';
+export { FetchFox } from './fetchfox.js';
 export { configure, host, ws, apiKey } from './configure.js';
