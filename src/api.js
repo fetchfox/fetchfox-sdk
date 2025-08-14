@@ -8,7 +8,7 @@ const camelCase = (obj) => {
   );
 };
 
-const endpoint = (path) => `${host()}${path}`;
+const endpoint = (path, params) => `${host(params)}${path}`;
 
 const FetchFoxAPIError = class extends Error {
   constructor(errors) {
@@ -28,7 +28,7 @@ export const call = async (method, path, params) => {
     },
   };
 
-  let url = endpoint(path);
+  let url = endpoint(path, params);
   if (method == 'GET') {
     url += '?' + new URLSearchParams(params).toString();
   } else {
