@@ -86,7 +86,7 @@ export const Job = class {
       if (['completed', 'error'].includes(this.state)) {
         this.trigger('finished');
         // Just in case there are some straggler events, wait a few seconds
-        setTimeout(() => socket.disconnect(), 5000);
+        setTimeout(() => this.#socket.disconnect(), 5000);
       }
     }
   }
