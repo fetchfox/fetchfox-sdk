@@ -1,6 +1,6 @@
 {
   "name": "fetchfox-sdk",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "AI scraper",
   "main": "src/index.js",
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fetchfox/fetchfox.git"
+    "url": "git+https://github.com/fetchfox/fetchfox-sdk.git"
   },
   "keywords": [
     "ai",
@@ -20,9 +20,9 @@
   "author": "marcell@fetchfoxai.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fetchfox/fetchfox/issues"
+    "url": "https://github.com/fetchfox/fetchfox-sdk/issues"
   },
-  "homepage": "https://github.com/fetchfox/fetchfox#readme",
+  "homepage": "https://fetchfox.ai",
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "eslint-plugin-promise": "^7.2.1",

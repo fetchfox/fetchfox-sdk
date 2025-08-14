@@ -7,5 +7,5 @@ export async function scrape(args) {
 
 scrape.detach = async (args) => {
   const data = await call('POST', '/api/scrape', { ...args, detach: true });
-  return new Job(data.jobId);
+  return new Job(data.jobId, args);
 };

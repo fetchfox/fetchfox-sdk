@@ -7,5 +7,5 @@ export async function extract(args) {
 
 extract.detach = async (args) => {
   const data = await call('POST', '/api/extract', { ...args, detach: true });
-  return new Job(data.jobId);
+  return new Job(data.jobId, args);
 };

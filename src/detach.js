@@ -12,7 +12,7 @@ export const Job = class {
   #callbacks;
   #socket;
 
-  constructor(id) {
+  constructor(id, options) {
     this.id = id;
     this.#callbacks = {
       completed: [],
@@ -21,7 +21,7 @@ export const Job = class {
       progress: [],
     };
 
-    this.#socket = new io(ws());
+    this.#socket = new io(ws(options));
     this.#socket.on('progress', (data) => {
       this.handleProgress(data);
     });
