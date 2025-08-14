@@ -10,12 +10,13 @@ export const FetchFox = class {
     const fns = [crawl, extract, scrape];
 
     for (const fn of fns) {
-      this[fn.name] = (args) =>
-        fn({
+      this[fn.name] = function (args) {
+        return fn({
           apiKey: this.apiKey,
           host: this.host,
           ...args,
         });
+      };
       this[fn.name].detach = (args) =>
         fn.detach({
           apiKey: this.apiKey,
