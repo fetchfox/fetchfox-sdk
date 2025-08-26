@@ -11,15 +11,19 @@ export function getSocket() {}
 export const Job = class {
   #callbacks;
   #socket;
+  #seen;
 
   constructor(id, options) {
     this.id = id;
     this.#callbacks = {
+      item: [],
       completed: [],
       error: [],
       finished: [],
       progress: [],
     };
+
+    this.#seen = {};
 
     this.#socket = new io(ws(options));
     this.#socket.on('progress', (data) => {
@@ -50,6 +54,15 @@ export const Job = class {
     ]) {
       s[key] = data[key] || this[key];
     }
+
+    if (s.progress?.children?.jobs) {
+      // const late = this.progress.children.jobs.filter(it => it.late);
+      // console.log('late jobs:', late);
+      s.progress.children.jobs = s.progress.children.jobs.filter(
+        (it) => !it.late
+      );
+    }
+
     return s;
   }
 
@@ -63,6 +76,8 @@ export const Job = class {
   }
 
   handleProgress(data) {
+    console.log('handleProgress', data);
+
     const last = JSON.stringify(this);
 
     const s = this.#select(data);
@@ -72,21 +87,34 @@ export const Job = class {
 
     const didUpdate = JSON.stringify(this) != last;
     if (didUpdate) {
-      this.trigger('progress');
+      this.trigger('progress', this);
+
+      for (const item of this.results?.items || []) {
+        const ser = JSON.stringify(item);
+        if (this.#seen[ser]) {
+          continue;
+        }
+        this.#seen[ser] = true;
+        this.trigger('item', item);
+      }
 
       if (this.state == 'completed') {
         this._completed = true;
-        this.trigger('completed');
+        this.trigger('completed', this);
       }
       if (this.state == 'error') {
         this._error = true;
-        this.trigger('error');
+        this.trigger('error', this);
       }
 
       if (['completed', 'error'].includes(this.state)) {
-        this.trigger('finished');
-        // Just in case there are some straggler events, wait a few seconds
-        setTimeout(() => this.#socket.disconnect(), 5000);
+        if (this.progress?.children?.jobs) {
+          this.progress.children.jobs = this.progress.children.jobs.filter(
+            (it) => it.state != 'active'
+          );
+        }
+        this.trigger('finished', this);
+        this.#socket.disconnect();
       }
     }
   }
@@ -97,10 +125,10 @@ export const Job = class {
     }
   }
 
-  trigger(event) {
+  trigger(event, data) {
     this.checkEvent(event);
     for (const cb of this.#callbacks[event]) {
-      cb({ ...this });
+      cb(data);
     }
   }
 

@@ -1,6 +1,4 @@
-const config = {
-  host: 'https://api.fetchfox.ai',
-};
+const config = {};
 
 const isNode =
   typeof process !== 'undefined' &&
@@ -22,16 +20,12 @@ export const apiKey = (options) =>
   options?.apiKey || config.apiKey || safeEnv('FETCHFOX_API_KEY');
 
 export const host = (options) =>
-  options?.host || config.host || safeEnv('FETCHFOX_HOST');
+  options?.host ||
+  config.host ||
+  safeEnv('FETCHFOX_HOST') ||
+  'https://api.fetchfox.ai';
 
 export const appHost = (options) =>
-  (options?.host || config.host || safeEnv('FETCHFOX_HOST')).replace(
-    'api.fetchfox.ai',
-    'app.fetchfox.ai'
-  );
+  host(options).replace('api.fetchfox.ai', 'app.fetchfox.ai');
 
-export const ws = (options) =>
-  (options?.host || config.host || safeEnv('FETCHFOX_HOST')).replace(
-    'http',
-    'ws'
-  );
+export const ws = (options) => host(options).replace('http', 'ws');

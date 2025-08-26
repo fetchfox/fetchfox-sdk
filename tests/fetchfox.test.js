@@ -37,18 +37,29 @@ test('use fetchfox object for extract detach @fetchfox @sanity', async () => {
     apiKey: process.env.FETCHFOX_API_KEY,
   });
   const job = await fox.extract.detach({
-    urls: ['https://pokemondb.net/pokedex/bulbasaur'],
+    urls: [
+      'https://pokemondb.net/pokedex/bulbasaur',
+      'https://pokemondb.net/pokedex/charmander',
+    ],
     template: 'name and number',
   });
 
   let count = 0;
+
   job.on('progress', (data) => {
     count++;
+  });
+
+  let itemCount = 0;
+  job.on('item', (item) => {
+    itemCount++;
+    console.log('got item:', item);
   });
 
   await job.finished();
 
   expect(count).toBeGreaterThan(0);
+  expect(itemCount).toBe(2);
 }, 30_000);
 
 test('invalid key fails @fetchfox @sanity', async () => {
