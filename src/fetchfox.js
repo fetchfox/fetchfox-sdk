@@ -7,7 +7,7 @@ export const FetchFox = class {
     this.apiKey = apiKey;
     this.host = host;
 
-    const fns = [crawl, extract, scrape];
+    const fns = [visit, crawl, extract, scrape];
 
     for (const fn of fns) {
       this[fn.name] = function (args) {

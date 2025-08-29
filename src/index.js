@@ -1,11 +1,14 @@
-export * from './scrape.js';
+export * from './visit.js';
 export * from './crawl.js';
 export * from './extract.js';
+export * from './scrape.js';
+
 export * from './jobs.js';
 export * from './user.js';
 export * from './credits.js';
 export * from './proxy.js';
 export * from './urls.js';
+
 export { Job } from './detach.js';
 export { call } from './api.js';
 export { FetchFox } from './fetchfox.js';
