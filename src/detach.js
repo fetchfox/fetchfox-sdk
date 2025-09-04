@@ -12,13 +12,15 @@ export const Job = class {
   #callbacks;
   #socket;
   #seen;
+  #completed;
+  #failed;
 
   constructor(id, options) {
     this.id = id;
     this.#callbacks = {
       item: [],
       completed: [],
-      error: [],
+      failed: [],
       finished: [],
       progress: [],
     };
@@ -33,7 +35,7 @@ export const Job = class {
   }
 
   get _finished() {
-    return this._completed || this._error;
+    return this.#completed || this.#failed;
   }
 
   get appUrl() {
@@ -42,22 +44,15 @@ export const Job = class {
 
   #select(data) {
     const s = {};
-    for (const key of [
-      'name',
-      'state',
-      'args',
-      'metrics',
-      'progress',
-      'results',
-      'artifacts',
-      'timer',
-    ]) {
-      s[key] = data[key] || this[key];
+    for (const key of Object.keys(data)) {
+      const val = data[key] ?? this[key];
+      if (val === undefined) {
+        continue;
+      }
+      s[key] = val;
     }
 
     if (s.progress?.children?.jobs) {
-      // const late = this.progress.children.jobs.filter(it => it.late);
-      // console.log('late jobs:', late);
       s.progress.children.jobs = s.progress.children.jobs.filter(
         (it) => !it.late
       );
@@ -66,24 +61,30 @@ export const Job = class {
     return s;
   }
 
-  async get() {
-    const data = await jobs.get(this.id);
+  updateFromData(data) {
     const s = this.#select(data);
     for (const key of Object.keys(s)) {
       this[key] = s[key];
     }
+    if (['completed', 'failed'].includes(this.state)) {
+      if (this.progress?.children?.jobs) {
+        this.progress.children.jobs = this.progress.children.jobs.filter(
+          (it) => it.state != 'active'
+        );
+      }
+    }
+  }
+
+  async get() {
+    const data = await jobs.get(this.id);
+    this.updateFromData(data);
     return this;
   }
 
   handleProgress(data) {
-    console.log('handleProgress', data);
-
     const last = JSON.stringify(this);
 
-    const s = this.#select(data);
-    for (const key of Object.keys(s)) {
-      this[key] = s[key];
-    }
+    this.updateFromData(data);
 
     const didUpdate = JSON.stringify(this) != last;
     if (didUpdate) {
@@ -99,23 +100,29 @@ export const Job = class {
       }
 
       if (this.state == 'completed') {
-        this._completed = true;
-        this.trigger('completed', this);
+        this.#completed = true;
       }
-      if (this.state == 'error') {
-        this._error = true;
-        this.trigger('error', this);
+      if (this.state == 'failed') {
+        this.#failed = true;
+      }
+    }
+
+    if (['completed', 'failed'].includes(this.state)) {
+      if (this.progress?.children?.jobs) {
+        this.progress.children.jobs = this.progress.children.jobs.filter(
+          (it) => it.state != 'active'
+        );
       }
 
-      if (['completed', 'error'].includes(this.state)) {
-        if (this.progress?.children?.jobs) {
-          this.progress.children.jobs = this.progress.children.jobs.filter(
-            (it) => it.state != 'active'
-          );
-        }
-        this.trigger('finished', this);
-        this.#socket.disconnect();
-      }
+      this.#socket.disconnect();
+
+      this.get()
+        .then(() => {
+          this.trigger('progress', this);
+          this.trigger(this.state, this);
+          this.trigger('finished', this);
+        })
+        .catch((e) => console.error(e));
     }
   }
 
@@ -156,8 +163,8 @@ export const Job = class {
     return this.waitFor('completed');
   }
 
-  async error() {
-    return this.waitFor('error');
+  async failed() {
+    return this.waitFor('failed');
   }
 
   async finished() {
