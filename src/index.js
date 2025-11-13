@@ -2,6 +2,7 @@ export * from './visit.js';
 export * from './crawl.js';
 export * from './extract.js';
 export * from './scrape.js';
+export * from './agent.js';
 
 export * from './jobs.js';
 export * from './user.js';

@@ -29,7 +29,6 @@ export const call = async (method, path, params) => {
   };
 
   let url = endpoint(path, params);
-  console.log('Url', url);
   if (method == 'GET') {
     url += '?' + new URLSearchParams(params).toString();
   } else {
