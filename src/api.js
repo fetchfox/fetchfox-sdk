@@ -30,7 +30,13 @@ export const call = async (method, path, params) => {
 
   let url = endpoint(path, params);
   if (method == 'GET') {
-    url += '?' + new URLSearchParams(params).toString();
+    const clean = {};
+    for (const key of Object.keys(params || {})) {
+      if (params[key] !== undefined && params[key] !== null) {
+        clean[key] = params[key];
+      }
+    }
+    url += '?' + new URLSearchParams(clean).toString();
   } else {
     args.body = JSON.stringify(params);
   }
