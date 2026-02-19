@@ -15,7 +15,8 @@ export const Job = class {
   #completed;
   #failed;
 
-  constructor(id, options) {
+  constructor(name, id, options) {
+    this.name = name;
     this.id = id;
     this.#callbacks = {
       item: [],
@@ -39,7 +40,9 @@ export const Job = class {
   }
 
   get appUrl() {
-    return appHost() + '/jobs/' + this.id;
+    return [appHost(), this.name == 'agent' ? 'agents' : 'jobs', this.id].join(
+      '/'
+    );
   }
 
   #select(data) {
@@ -108,6 +111,8 @@ export const Job = class {
     }
 
     if (['completed', 'failed'].includes(this.state)) {
+      console.log('Got state:', this.state);
+
       if (this.progress?.children?.jobs) {
         this.progress.children.jobs = this.progress.children.jobs.filter(
           (it) => it.state != 'active'
@@ -116,13 +121,16 @@ export const Job = class {
 
       this.#socket.disconnect();
 
-      this.get()
-        .then(() => {
-          this.trigger('progress', this);
-          this.trigger(this.state, this);
-          this.trigger('finished', this);
-        })
-        .catch((e) => console.error(e));
+      console.log('Set timeout before triggering completion');
+      setTimeout(() => {
+        this.get()
+          .then(() => {
+            this.trigger('progress', this);
+            this.trigger(this.state, this);
+            this.trigger('finished', this);
+          })
+          .catch((e) => console.error(e));
+      }, 500);
     }
   }
 
