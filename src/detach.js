@@ -33,12 +33,6 @@ export const Job = class {
     };
 
     this.#seen = {};
-    this.#socket = new io(ws(options));
-    this.#socket.on('progress', (data) => {
-      this.handleProgress(data);
-    });
-    this.#socket.emit('sub', this.id);
-
     this.#socket2 = new WebSocket(ws(options) + '/ws/jobs/' + id);
     this.#socket2.onmessage = (data) => {
       let parsed;
@@ -145,8 +139,6 @@ export const Job = class {
           (it) => it.state != 'active'
         );
       }
-
-      this.#socket.disconnect();
 
       console.log('Set timeout before triggering completion');
       setTimeout(() => {
