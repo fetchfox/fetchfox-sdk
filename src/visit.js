@@ -7,5 +7,5 @@ export async function visit(args) {
 
 visit.detach = async (args) => {
   const data = await call('POST', '/api/visit', { ...args, detach: true });
-  return new Job(data.jobId, args);
+  return new Job(data.jobId, { ...args, name: 'visit' });
 };

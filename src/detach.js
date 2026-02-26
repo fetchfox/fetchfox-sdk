@@ -11,28 +11,55 @@ export function getSocket() {}
 export const Job = class {
   #callbacks;
   #socket;
+  #socket2;
+  #socket3;
   #seen;
   #completed;
   #failed;
 
-  constructor(name, id, options) {
-    this.name = name;
+  constructor(id, options) {
     this.id = id;
+    this.name = options?.name;
     this.#callbacks = {
       item: [],
       completed: [],
       failed: [],
       finished: [],
       progress: [],
+
+      // new
+      update: [],
+      children: [],
     };
 
     this.#seen = {};
-
     this.#socket = new io(ws(options));
     this.#socket.on('progress', (data) => {
       this.handleProgress(data);
     });
     this.#socket.emit('sub', this.id);
+
+    this.#socket2 = new WebSocket(ws(options) + '/ws/jobs/' + id);
+    this.#socket2.onmessage = (data) => {
+      let parsed;
+      try {
+        parsed = JSON.parse(data.data);
+      } catch {
+        return;
+      }
+      this.trigger('update', parsed);
+    };
+
+    this.#socket3 = new WebSocket(ws(options) + '/ws/children/' + id);
+    this.#socket3.onmessage = (data) => {
+      let parsed;
+      try {
+        parsed = JSON.parse(data.data);
+      } catch {
+        return;
+      }
+      this.trigger('children', parsed);
+    };
   }
 
   get _finished() {
