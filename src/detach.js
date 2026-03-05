@@ -1,4 +1,3 @@
-import { io } from 'socket.io-client';
 import { ws, appHost } from './configure.js';
 import { jobs } from './jobs.js';
 
@@ -10,9 +9,8 @@ export function getSocket() {}
 
 export const Job = class {
   #callbacks;
-  #socket;
-  #socket2;
-  #socket3;
+  #wsUpdates;
+  #wsChildren;
   #seen;
   #completed;
   #failed;
@@ -33,19 +31,33 @@ export const Job = class {
     };
 
     this.#seen = {};
-    this.#socket2 = new WebSocket(ws(options) + '/ws/jobs/' + id);
-    this.#socket2.onmessage = (data) => {
+    this.#wsUpdates = new WebSocket(ws(options) + '/ws/jobs/' + id);
+    this.#wsUpdates.onmessage = (data) => {
       let parsed;
       try {
         parsed = JSON.parse(data.data);
       } catch {
         return;
       }
+
+      for (const key of Object.keys(parsed)) {
+        this[key] = parsed[key];
+      }
+
       this.trigger('update', parsed);
+
+      if (!this.#completed && parsed.state == 'completed') {
+        this.#completed = true;
+        this.trigger('finished', parsed);
+      }
+      if (!this.#failed && parsed.state == 'failed') {
+        this.#failed = true;
+        this.trigger('finished', parsed);
+      }
     };
 
-    this.#socket3 = new WebSocket(ws(options) + '/ws/children/' + id);
-    this.#socket3.onmessage = (data) => {
+    this.#wsChildren = new WebSocket(ws(options) + '/ws/children/' + id);
+    this.#wsChildren.onmessage = (data) => {
       let parsed;
       try {
         parsed = JSON.parse(data.data);
@@ -83,74 +95,6 @@ export const Job = class {
     }
 
     return s;
-  }
-
-  updateFromData(data) {
-    const s = this.#select(data);
-    for (const key of Object.keys(s)) {
-      this[key] = s[key];
-    }
-    if (['completed', 'failed'].includes(this.state)) {
-      if (this.progress?.children?.jobs) {
-        this.progress.children.jobs = this.progress.children.jobs.filter(
-          (it) => it.state != 'active'
-        );
-      }
-    }
-  }
-
-  async get() {
-    const data = await jobs.get(this.id);
-    this.updateFromData(data);
-    return this;
-  }
-
-  handleProgress(data) {
-    const last = JSON.stringify(this);
-
-    this.updateFromData(data);
-
-    const didUpdate = JSON.stringify(this) != last;
-    if (didUpdate) {
-      this.trigger('progress', this);
-
-      for (const item of this.results?.items || []) {
-        const ser = JSON.stringify(item);
-        if (this.#seen[ser]) {
-          continue;
-        }
-        this.#seen[ser] = true;
-        this.trigger('item', item);
-      }
-
-      if (this.state == 'completed') {
-        this.#completed = true;
-      }
-      if (this.state == 'failed') {
-        this.#failed = true;
-      }
-    }
-
-    if (['completed', 'failed'].includes(this.state)) {
-      console.log('Got state:', this.state);
-
-      if (this.progress?.children?.jobs) {
-        this.progress.children.jobs = this.progress.children.jobs.filter(
-          (it) => it.state != 'active'
-        );
-      }
-
-      console.log('Set timeout before triggering completion');
-      setTimeout(() => {
-        this.get()
-          .then(() => {
-            this.trigger('progress', this);
-            this.trigger(this.state, this);
-            this.trigger('finished', this);
-          })
-          .catch((e) => console.error(e));
-      }, 500);
-    }
   }
 
   checkEvent(event) {
