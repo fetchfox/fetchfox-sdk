@@ -5,6 +5,7 @@ export * from './scrape.js';
 export * from './agent.js';
 
 export * from './jobs.js';
+export * from './items.js';
 export * from './user.js';
 export * from './credits.js';
 export * from './proxy.js';
