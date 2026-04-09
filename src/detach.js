@@ -17,7 +17,7 @@ export const Job = class {
 
   constructor(id, options) {
     this.id = id;
-    this.name = options?.name;
+    this.method = options?.method;
     this.#callbacks = {
       item: [],
       completed: [],
@@ -73,9 +73,11 @@ export const Job = class {
   }
 
   get appUrl() {
-    return [appHost(), this.name == 'agent' ? 'agents' : 'jobs', this.id].join(
-      '/'
-    );
+    return [
+      appHost(),
+      this.method == 'agent' ? 'agents' : 'jobs',
+      this.id,
+    ].join('/');
   }
 
   #select(data) {

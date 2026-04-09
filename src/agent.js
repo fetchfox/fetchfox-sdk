@@ -7,5 +7,5 @@ export async function agent(args) {
 
 agent.detach = async (args) => {
   const data = await call('POST', '/api/agent', { ...args, detach: true });
-  return new Job(data.jobId, { ...args, name: 'agent' });
+  return new Job(data.jobId, { ...args, method: 'agent' });
 };

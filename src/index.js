@@ -3,6 +3,7 @@ export * from './crawl.js';
 export * from './extract.js';
 export * from './scrape.js';
 export * from './agent.js';
+export * from './plan.js';
 
 export * from './jobs.js';
 export * from './items.js';
