@@ -1,6 +1,6 @@
 {
   "name": "fetchfox-sdk",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "description": "AI scraper",
   "main": "src/index.js",
   "type": "module",
