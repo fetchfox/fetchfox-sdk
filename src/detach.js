@@ -141,6 +141,6 @@ export const Job = class {
   }
 
   async finished() {
-    return this.waitFor('finished');
+    return Promise.race([this.completed(), this.failed()]);
   }
 };

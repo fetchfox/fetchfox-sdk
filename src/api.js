@@ -18,16 +18,12 @@ const FetchFoxAPIError = class extends Error {
 };
 
 export const call = async (method, path, params) => {
+  const headers = { 'Content-Type': 'application/json' };
   const key = apiKey(params);
-
-  const args = {
-    method,
-    headers: {
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-  };
-
+  if (key) {
+    headers['Authorization'] = `Bearer ${key}`;
+  }
+  const args = { method, headers };
   let url = endpoint(path, params);
   if (method == 'GET') {
     const clean = {};
