@@ -48,10 +48,12 @@ export const Job = class {
 
       if (!this.#completed && parsed.state == 'completed') {
         this.#completed = true;
+        this.trigger('completed', parsed);
         this.trigger('finished', parsed);
       }
       if (!this.#failed && parsed.state == 'failed') {
         this.#failed = true;
+        this.trigger('failed', parsed);
         this.trigger('finished', parsed);
       }
     };
