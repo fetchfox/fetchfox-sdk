@@ -26,6 +26,8 @@ export const host = (options) =>
   'https://api.fetchfox.ai';
 
 export const appHost = (options) =>
-  host(options).replace('api.fetchfox.ai', 'fetchfox.ai');
+  host(options)
+    .replace('api.fetchfox.ai', 'app.fetchfox.ai')
+    .replace('https://app.fetchfox.ai', 'https://fetchfox.ai');
 
 export const ws = (options) => host(options).replace('http', 'ws');
