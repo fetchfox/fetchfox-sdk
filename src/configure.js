@@ -7,12 +7,15 @@ const isNode =
 
 const safeEnv = (key) => (isNode ? process.env[key] : null);
 
-export const configure = ({ apiKey, host }) => {
+export const configure = ({ apiKey, host, appHost }) => {
   if (apiKey) {
     config.apiKey = apiKey;
   }
   if (host) {
     config.host = host;
+  }
+  if (appHost) {
+    config.appHost = appHost;
   }
 };
 
@@ -26,6 +29,7 @@ export const host = (options) =>
   'https://api.fetchfox.ai';
 
 export const appHost = (options) =>
+  config.appHost ||
   host(options)
     .replace('api.fetchfox.ai', 'app.fetchfox.ai')
     .replace('https://app.fetchfox.ai', 'https://fetchfox.ai');
